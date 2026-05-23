@@ -1,0 +1,32 @@
+meta {
+  name: Start generare cereri
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8090/generator/start?scenario=gradual&rps=200&duration=100
+  body: none
+  auth: inherit
+}
+
+params:query {
+  scenario: gradual
+  rps: 200
+  duration: 100
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Configuratii:
+  - scenario:
+    - burst
+    - gradual
+    - fara optiune => uniform
+  - rps (requests per second)
+  - duration (cat dureaza experimentul in secundeß)
+}

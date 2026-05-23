@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: banking-gateway
+
+gateway:
+  strategy: round-robin   # round-robin | least-connections | weighted
+  instances:
+    - id: instance-1
+      url: http://instance-1:8081
+      weight: 3
+    - id: instance-2
+      url: http://instance-2:8082
+      weight: 2
+    - id: instance-3
+      url: http://instance-3:8083
+      weight: 1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  metrics:
+    export:
+      prometheus:
+        enabled: true

@@ -1,0 +1,5 @@
+com/banking/generator/model/BankingRequestFactory.class
+com/banking/generator/service/GeneratorService.class
+com/banking/generator/GeneratorApplication.class
+com/banking/generator/controller/GeneratorController.class
+com/banking/generator/model/BankingRequestFactory$Request.class

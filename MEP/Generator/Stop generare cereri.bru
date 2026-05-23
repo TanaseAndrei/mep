@@ -1,0 +1,15 @@
+meta {
+  name: Stop generare cereri
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8090/generator/stop
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

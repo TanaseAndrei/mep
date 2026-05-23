@@ -1,0 +1,7 @@
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/model/Instance.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/config/GatewayConfig.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/service/ProxyService.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/GatewayApplication.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/controller/GatewayController.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/service/MetricsService.java
+/Users/andrei-cristiantanase/Documents/Projects/Facultate/An1Sem2MEP/banking2/gateway/src/main/java/com/banking/gateway/service/LoadBalancerService.java

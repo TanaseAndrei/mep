@@ -1,0 +1,15 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: banking-generator
+
+generator:
+  gateway-url: http://gateway:8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

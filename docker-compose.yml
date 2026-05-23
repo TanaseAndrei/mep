@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+
+  # ── Gateway ───────────────────────────────────────────────────────────
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: banking-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      GATEWAY_STRATEGY: round-robin   # round-robin | least-connections | weighted
+    networks:
+      - lb-net
+    depends_on:
+      - instance-1
+      - instance-2
+      - instance-3
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/gateway/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Processing instances — ACELAȘI cod, latențe diferite ──────────────
+  instance-1:
+    build:
+      context: .
+      dockerfile: processing-instance/Dockerfile
+    container_name: instance-1
+    environment:
+      SERVER_PORT: 8081
+      INSTANCE_ID: instance-1
+      BASE_PROCESSING_MS: 100   # nod rapid
+      JITTER_MS: 30
+    networks:
+      - lb-net
+
+  instance-2:
+    build:
+      context: .
+      dockerfile: processing-instance/Dockerfile
+    container_name: instance-2
+    environment:
+      SERVER_PORT: 8082
+      INSTANCE_ID: instance-2
+      BASE_PROCESSING_MS: 150   # nod mediu
+      JITTER_MS: 50
+    networks:
+      - lb-net
+
+  instance-3:
+    build:
+      context: .
+      dockerfile: processing-instance/Dockerfile
+    container_name: instance-3
+    environment:
+      SERVER_PORT: 8083
+      INSTANCE_ID: instance-3
+      BASE_PROCESSING_MS: 200   # nod lent
+      JITTER_MS: 80
+    networks:
+      - lb-net
+
+  # ── Generator ─────────────────────────────────────────────────────────
+  generator:
+    build:
+      context: .
+      dockerfile: generator/Dockerfile
+    container_name: banking-generator
+    ports:
+      - "8090:8090"
+    environment:
+      GENERATOR_GATEWAY_URL: http://banking-gateway:8080
+    networks:
+      - lb-net
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+networks:
+  lb-net:
+    driver: bridge
