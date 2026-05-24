@@ -37,7 +37,7 @@ public class LoadBalancerService {
 	}
 
 	private Instance roundRobin() {
-		int idx = Math.abs(rrIndex.getAndIncrement() % instances.size());
+		int idx = Math.floorMod(rrIndex.getAndIncrement(), instances.size());
 		return instances.get(idx);
 	}
 
@@ -48,7 +48,7 @@ public class LoadBalancerService {
 	}
 
 	private Instance weighted() {
-		int idx = Math.abs(rrIndex.getAndIncrement() % weightedPool.size());
+		int idx = Math.floorMod(rrIndex.getAndIncrement(), weightedPool.size());
 		return weightedPool.get(idx);
 	}
 

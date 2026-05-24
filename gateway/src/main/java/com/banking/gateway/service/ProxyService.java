@@ -8,7 +8,10 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class ProxyService {
@@ -16,6 +19,7 @@ public class ProxyService {
 	private static final Logger log = LoggerFactory.getLogger(ProxyService.class);
 
 	private final RestTemplate restTemplate = new RestTemplate();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final LoadBalancerService loadBalancer;
 	private final MetricsService metricsService;
 
@@ -64,8 +68,13 @@ public class ProxyService {
 			instance.recordError();
 			metricsService.recordError();
 			log.warn("Proxy error → {}: {}", instance.getId(), e.getMessage());
-			return ResponseEntity.status(502)
-					.body("{\"error\":\"Instance unavailable\",\"instance\":\"" + instance.getId() + "\"}");
+			try {
+				String errorBody = objectMapper.writeValueAsString(
+						Map.of("error", "Instance unavailable", "instance", instance.getId()));
+				return ResponseEntity.status(502).body(errorBody);
+			} catch (Exception ex) {
+				return ResponseEntity.status(502).body("{\"error\":\"Instance unavailable\"}");
+			}
 		}
 	}
 }

@@ -12,6 +12,7 @@ public class MetricsService {
 	private static final int MAX_SAMPLES = 50_000;
 
 	private ConcurrentLinkedQueue<Long> latencies = new ConcurrentLinkedQueue<>();
+	private final AtomicLong sampleCount   = new AtomicLong(0);
 	private final AtomicLong totalRequests = new AtomicLong(0);
 	private final AtomicLong totalErrors   = new AtomicLong(0);
 	private volatile long    startTime     = System.currentTimeMillis();
@@ -19,7 +20,10 @@ public class MetricsService {
 	public void monitor(long latencyMs) {
 		totalRequests.incrementAndGet();
 		latencies.offer(latencyMs);
-		while (latencies.size() > MAX_SAMPLES) latencies.poll();
+		if (sampleCount.incrementAndGet() > MAX_SAMPLES) {
+			latencies.poll();
+			sampleCount.decrementAndGet();
+		}
 	}
 
 	public void recordError() {
@@ -73,6 +77,7 @@ public class MetricsService {
 
 	public void reset() {
 		latencies = new ConcurrentLinkedQueue<>();
+		sampleCount.set(0);
 		totalRequests.set(0);
 		totalErrors.set(0);
 		startTime = System.currentTimeMillis();

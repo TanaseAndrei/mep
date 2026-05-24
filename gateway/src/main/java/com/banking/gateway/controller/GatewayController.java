@@ -28,18 +28,12 @@ public class GatewayController {
 		this.metricsService = metricsService;
 	}
 
-	/**
-	 * Prinde toate cererile /api/** și le distribuie conform strategiei
-	 */
 	@RequestMapping("/api/**")
 	public ResponseEntity<String> proxy(HttpServletRequest request,
 										@RequestBody(required = false) String body) {
 		return proxyService.proxy(request, body);
 	}
 
-	/**
-	 * Metrici complete: gateway + per instanță
-	 */
 	@GetMapping("/gateway/metrics")
 	public ResponseEntity<Map<String, Object>> metrics() {
 		long totalReqs = loadBalancer.getAllInstances().stream()
@@ -78,9 +72,6 @@ public class GatewayController {
 		));
 	}
 
-	/**
-	 * Schimbă strategia la runtime
-	 */
 	@PostMapping("/gateway/strategy")
 	public ResponseEntity<Map<String, String>> changeStrategy(@RequestParam String name) {
 		List<String> valid = List.of("round-robin", "least-connections", "weighted");

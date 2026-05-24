@@ -6,11 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Generează payload-uri HTTP realiste pentru operații bancare.
- * Toate cererile merg la /api/** și sunt distribuite de gateway
- * conform strategiei de load balancing — aceasta este variabila experimentului.
- */
 public class BankingRequestFactory {
 
 	private static final Random random = new Random();
@@ -36,8 +31,6 @@ public class BankingRequestFactory {
 
 	public record Request(String method, String path, Object body) {
 	}
-
-	// ── Operații individuale ──────────────────────────────────────────────
 
 	public static Request createAccount() {
 		return new Request("POST", "/api/accounts", Map.of(
@@ -105,11 +98,6 @@ public class BankingRequestFactory {
 		return new Request("GET", "/api/payments/stats", null);
 	}
 
-	// ── Scenarii ──────────────────────────────────────────────────────────
-
-	/**
-	 * Uniform: mix echilibrat de READ/WRITE pe toate tipurile de operații
-	 */
 	public static Request uniform() {
 		return switch (random.nextInt(10)) {
 			case 0, 1 -> createTransaction();
@@ -122,9 +110,6 @@ public class BankingRequestFactory {
 		};
 	}
 
-	/**
-	 * Burst: predominant write-heavy (simulare end-of-day banking)
-	 */
 	public static Request burst() {
 		return switch (random.nextInt(10)) {
 			case 0, 1, 2 -> createTransaction();
@@ -135,17 +120,11 @@ public class BankingRequestFactory {
 		};
 	}
 
-	/**
-	 * Gradual: faza 0-3 read-only, faza 4-7 mix, faza 8-9 write-heavy.
-	 * Testează adaptarea strategiilor la schimbarea profilului de trafic.
-	 */
 	public static Request gradual(int phase) {
 		if (phase <= 3) return random.nextBoolean() ? getAccounts() : getTransactions();
 		else if (phase <= 7) return uniform();
 		else return burst();
 	}
-
-	// ── Utils ─────────────────────────────────────────────────────────────
 
 	private static BigDecimal randomAmount(double min, double max) {
 		return BigDecimal.valueOf(min + random.nextDouble() * (max - min))

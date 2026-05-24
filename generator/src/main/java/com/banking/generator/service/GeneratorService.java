@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -17,25 +18,23 @@ public class GeneratorService {
 
 	private static final Logger log = LoggerFactory.getLogger(GeneratorService.class);
 
-	@Value("${generator.gateway-url:http://gateway:8080}")
+	@Value("${generator.gateway-url}")
 	private String gatewayUrl;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 	private final AtomicLong sent = new AtomicLong(0);
 	private final AtomicLong errors = new AtomicLong(0);
 
-	private volatile boolean running = false;
+	private final AtomicBoolean running = new AtomicBoolean(false);
 	private volatile String scenario = "uniform";
 	private ScheduledExecutorService scheduler;
 	private ExecutorService httpPool;
 
 	public void start(String scenarioName, int rps, int durationSec) {
-		if (running) return;
+		if (!running.compareAndSet(false, true)) return;
 		this.scenario = scenarioName;
-		this.running = true;
 		sent.set(0);
 		errors.set(0);
-		scheduler = Executors.newScheduledThreadPool(8);
 
 		scheduler = Executors.newScheduledThreadPool(4);
 		int poolSize = Math.max(50, (int)(rps * 0.35) + 20);
@@ -53,7 +52,7 @@ public class GeneratorService {
 	}
 
 	public void stop() {
-		running = false;
+		running.set(false);
 		if (scheduler != null) scheduler.shutdown();
 		if (httpPool != null) httpPool.shutdown();
 		log.info("Generator STOP — sent={} errors={}", sent.get(), errors.get());
@@ -74,7 +73,7 @@ public class GeneratorService {
 				0, 1000L / baseline, TimeUnit.MILLISECONDS
 		);
 		scheduler.scheduleAtFixedRate(() -> {
-			if (!running) return;
+			if (!running.get()) return;
 			log.info("BURST spike — {} req", rps * 5);
 			for (int i = 0; i < rps * 5; i++)
 				scheduler.submit(() -> submitSend(BankingRequestFactory.burst()));
@@ -86,7 +85,7 @@ public class GeneratorService {
 	}
 
 	private void gradualStep(int currentRps, int maxRps, int phase) {
-		if (!running || currentRps > maxRps) return;
+		if (!running.get() || currentRps > maxRps) return;
 		log.info("Gradual phase={} rps={}", phase, currentRps);
 		int finalPhase = phase;
 		ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(
@@ -102,12 +101,12 @@ public class GeneratorService {
 	}
 
 	private void submitSend(Request req) {
-		if (!running) return;
+		if (!running.get()) return;
 		httpPool.submit(() -> send(req));
 	}
 
 	private void send(Request req) {
-		if (!running) return;
+		if (!running.get()) return;
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
@@ -125,7 +124,7 @@ public class GeneratorService {
 	}
 
 	public boolean isRunning() {
-		return running;
+		return running.get();
 	}
 
 	public long getSent() {

@@ -6,7 +6,7 @@ spring:
     name: banking-gateway
 
 gateway:
-  strategy: round-robin   # round-robin | least-connections | weighted
+  strategy: round-robin
   instances:
     - id: instance-1
       url: http://instance-1:8081

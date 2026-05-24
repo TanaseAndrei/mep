@@ -1,8 +1,6 @@
 version: '3.8'
 
 services:
-
-  # ── Gateway ───────────────────────────────────────────────────────────
   gateway:
     build:
       context: .
@@ -11,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      GATEWAY_STRATEGY: round-robin   # round-robin | least-connections | weighted
+      GATEWAY_STRATEGY: round-robin
     networks:
       - lb-net
     depends_on:
@@ -24,7 +22,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Processing instances — ACELAȘI cod, latențe diferite ──────────────
   instance-1:
     build:
       context: .
@@ -33,7 +30,7 @@ services:
     environment:
       SERVER_PORT: 8081
       INSTANCE_ID: instance-1
-      BASE_PROCESSING_MS: 100   # nod rapid
+      BASE_PROCESSING_MS: 100
       JITTER_MS: 30
     networks:
       - lb-net
@@ -46,7 +43,7 @@ services:
     environment:
       SERVER_PORT: 8082
       INSTANCE_ID: instance-2
-      BASE_PROCESSING_MS: 150   # nod mediu
+      BASE_PROCESSING_MS: 150
       JITTER_MS: 50
     networks:
       - lb-net
@@ -59,12 +56,11 @@ services:
     environment:
       SERVER_PORT: 8083
       INSTANCE_ID: instance-3
-      BASE_PROCESSING_MS: 200   # nod lent
+      BASE_PROCESSING_MS: 200
       JITTER_MS: 80
     networks:
       - lb-net
 
-  # ── Generator ─────────────────────────────────────────────────────────
   generator:
     build:
       context: .

@@ -26,7 +26,7 @@ public class GatewayConfig {
 	}
 
 	public static class GatewayProperties {
-		private String strategy = "round-robin";
+		private String strategy;
 		private List<InstanceProperties> instances;
 
 		public String getStrategy() {
@@ -49,7 +49,7 @@ public class GatewayConfig {
 	public static class InstanceProperties {
 		private String id;
 		private String url;
-		private int weight = 1;
+		private int weight;
 
 		public String getId() {
 			return id;
