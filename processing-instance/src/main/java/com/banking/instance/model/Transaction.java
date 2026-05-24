@@ -34,7 +34,9 @@ public class Transaction {
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
-		if (status == null) status = TransactionStatus.PENDING;
+		if (status == null) {
+			status = TransactionStatus.PENDING;
+		}
 	}
 
 	public Transaction() {

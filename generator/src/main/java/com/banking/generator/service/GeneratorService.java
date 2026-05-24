@@ -12,32 +12,41 @@ import org.springframework.web.client.RestTemplate;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 @Service
 public class GeneratorService {
 
 	private static final Logger log = LoggerFactory.getLogger(GeneratorService.class);
+	private static final long TICK_MS = 50;
 
 	@Value("${generator.gateway-url}")
 	private String gatewayUrl;
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
 	private final AtomicLong sent = new AtomicLong(0);
 	private final AtomicLong errors = new AtomicLong(0);
+
+	public GeneratorService(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private volatile String scenario = "uniform";
 	private ScheduledExecutorService scheduler;
 	private ExecutorService httpPool;
 
+
 	public void start(String scenarioName, int rps, int durationSec) {
-		if (!running.compareAndSet(false, true)) return;
+		if (!running.compareAndSet(false, true)) {
+			return;
+		}
 		this.scenario = scenarioName;
 		sent.set(0);
 		errors.set(0);
 
 		scheduler = Executors.newScheduledThreadPool(4);
-		int poolSize = Math.max(50, (int)(rps * 0.35) + 20);
+		int poolSize = Math.max(50, (int)(rps * 0.5) + 50);
 		httpPool = Executors.newFixedThreadPool(poolSize);
 
 		log.info("Generator START — scenario={} rps={} duration={}s", scenarioName, rps, durationSec);
@@ -53,30 +62,43 @@ public class GeneratorService {
 
 	public void stop() {
 		running.set(false);
-		if (scheduler != null) scheduler.shutdown();
-		if (httpPool != null) httpPool.shutdown();
+		if (scheduler != null) {
+			scheduler.shutdown();
+		}
+		if (httpPool != null) {
+			httpPool.shutdown();
+		}
 		log.info("Generator STOP — sent={} errors={}", sent.get(), errors.get());
 	}
 
+	private void scheduleBatched(int rps, Supplier<Request> requestFactory) {
+		int batchSize = Math.max(1, (int) (rps * TICK_MS / 1000.0));
+		scheduler.scheduleAtFixedRate(() -> {
+			if (!running.get()) {
+				return;
+			}
+			for (int i = 0; i < batchSize; i++) {
+				submitSend(requestFactory.get());
+			}
+		}, 0, TICK_MS, TimeUnit.MILLISECONDS);
+	}
+
 	private void runUniform(int rps) {
-		long intervalMs = 1000L / rps;
-		scheduler.scheduleAtFixedRate(
-				() -> submitSend(BankingRequestFactory.uniform()),
-				0, intervalMs, TimeUnit.MILLISECONDS
-		);
+		scheduleBatched(rps, BankingRequestFactory::uniform);
 	}
 
 	private void runBurst(int rps) {
 		int baseline = Math.max(1, rps / 4);
-		scheduler.scheduleAtFixedRate(
-				() -> submitSend(BankingRequestFactory.burst()),
-				0, 1000L / baseline, TimeUnit.MILLISECONDS
-		);
+		scheduleBatched(baseline, BankingRequestFactory::burst);
 		scheduler.scheduleAtFixedRate(() -> {
-			if (!running.get()) return;
-			log.info("BURST spike — {} req", rps * 5);
-			for (int i = 0; i < rps * 5; i++)
-				scheduler.submit(() -> submitSend(BankingRequestFactory.burst()));
+			if (!running.get()) {
+				return;
+			}
+			int spikeSize = rps * 5;
+			log.info("BURST spike — {} req", spikeSize);
+			for (int i = 0; i < spikeSize; i++) {
+				submitSend(BankingRequestFactory.burst());
+			}
 		}, 15, 15, TimeUnit.SECONDS);
 	}
 
@@ -85,13 +107,19 @@ public class GeneratorService {
 	}
 
 	private void gradualStep(int currentRps, int maxRps, int phase) {
-		if (!running.get() || currentRps > maxRps) return;
+		if (!running.get() || currentRps > maxRps) {
+			return;
+		}
 		log.info("Gradual phase={} rps={}", phase, currentRps);
-		int finalPhase = phase;
-		ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(
-				() -> submitSend(BankingRequestFactory.gradual(finalPhase)),
-				0, 1000L / currentRps, TimeUnit.MILLISECONDS
-		);
+		int batchSize = Math.max(1, (int) (currentRps * TICK_MS / 1000.0));
+		ScheduledFuture<?> f = scheduler.scheduleAtFixedRate(() -> {
+			if (!running.get()) {
+				return;
+			}
+			for (int i = 0; i < batchSize; i++) {
+				submitSend(BankingRequestFactory.gradual(phase));
+			}
+		}, 0, TICK_MS, TimeUnit.MILLISECONDS);
 		int nextRps = Math.min(currentRps + Math.max(1, maxRps / 10), maxRps);
 		int nextPhase = Math.min(phase + 1, 9);
 		scheduler.schedule(() -> {
@@ -101,12 +129,16 @@ public class GeneratorService {
 	}
 
 	private void submitSend(Request req) {
-		if (!running.get()) return;
+		if (!running.get()) {
+			return;
+		}
 		httpPool.submit(() -> send(req));
 	}
 
 	private void send(Request req) {
-		if (!running.get()) return;
+		if (!running.get()) {
+			return;
+		}
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
@@ -116,7 +148,9 @@ public class GeneratorService {
 					new HttpEntity<>(req.body(), headers), String.class
 			);
 			long count = sent.incrementAndGet();
-			if (count % 200 == 0) log.info("Sent {} (errors: {})", count, errors.get());
+			if (count % 200 == 0) {
+				log.info("Sent {} (errors: {})", count, errors.get());
+			}
 		} catch (Exception e) {
 			errors.incrementAndGet();
 			log.debug("Failed [{}]: {}", req.path(), e.getMessage());

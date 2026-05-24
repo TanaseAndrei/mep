@@ -121,9 +121,13 @@ public class BankingRequestFactory {
 	}
 
 	public static Request gradual(int phase) {
-		if (phase <= 3) return random.nextBoolean() ? getAccounts() : getTransactions();
-		else if (phase <= 7) return uniform();
-		else return burst();
+		if (phase <= 3) {
+			return random.nextBoolean() ? getAccounts() : getTransactions();
+		} else if (phase <= 7) {
+			return uniform();
+		} else {
+			return burst();
+		}
 	}
 
 	private static BigDecimal randomAmount(double min, double max) {

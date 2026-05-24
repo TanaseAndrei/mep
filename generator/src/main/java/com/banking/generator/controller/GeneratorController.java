@@ -21,8 +21,9 @@ public class GeneratorController {
 			@RequestParam(defaultValue = "uniform") String scenario,
 			@RequestParam(defaultValue = "10") int rps,
 			@RequestParam(defaultValue = "60") int duration) {
-		if (generatorService.isRunning())
+		if (generatorService.isRunning()) {
 			return ResponseEntity.badRequest().body(Map.of("error", "Already running"));
+		}
 		generatorService.start(scenario, rps, duration);
 		return ResponseEntity.ok(Map.of(
 				"status", "started", "scenario", scenario,

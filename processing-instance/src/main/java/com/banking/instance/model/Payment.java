@@ -38,7 +38,9 @@ public class Payment {
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
-		if (status == null) status = PaymentStatus.CREATED;
+		if (status == null) {
+			status = PaymentStatus.CREATED;
+		}
 	}
 
 	public Payment() {

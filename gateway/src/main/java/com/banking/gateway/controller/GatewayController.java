@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 public class GatewayController {
@@ -66,17 +65,18 @@ public class GatewayController {
 		metricsService.reset();
 		loadBalancer.getAllInstances().forEach(Instance::reset);
 		return ResponseEntity.ok(Map.of(
-				"status",   "reset",
+				"status", "reset",
 				"strategy", loadBalancer.getStrategy(),
-				"message",  "All metrics cleared. Ready for next experiment."
+				"message", "All metrics cleared. Ready for next experiment."
 		));
 	}
 
 	@PostMapping("/gateway/strategy")
 	public ResponseEntity<Map<String, String>> changeStrategy(@RequestParam String name) {
 		List<String> valid = List.of("round-robin", "least-connections", "weighted");
-		if (!valid.contains(name))
+		if (!valid.contains(name)) {
 			return ResponseEntity.badRequest().body(Map.of("error", "Valid: " + valid));
+		}
 		loadBalancer.setStrategy(name);
 		return ResponseEntity.ok(Map.of("strategy", name, "status", "changed"));
 	}

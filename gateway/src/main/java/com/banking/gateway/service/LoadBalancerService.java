@@ -19,7 +19,7 @@ public class LoadBalancerService {
 	private final List<Instance> instances;
 	private final GatewayProperties props;
 	private final AtomicInteger rrIndex = new AtomicInteger(0);
-	private List<Instance> weightedPool;
+	private final List<Instance> weightedPool;
 
 	public LoadBalancerService(List<Instance> instances, GatewayProperties props) {
 		this.instances = instances;
@@ -54,8 +54,11 @@ public class LoadBalancerService {
 
 	private List<Instance> buildWeightedPool(List<Instance> src) {
 		List<Instance> pool = new ArrayList<>();
-		for (Instance inst : src)
-			for (int i = 0; i < inst.getWeight(); i++) pool.add(inst);
+		for (Instance inst : src) {
+			for (int i = 0; i < inst.getWeight(); i++) {
+				pool.add(inst);
+			}
+		}
 		return pool;
 	}
 

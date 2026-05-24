@@ -37,7 +37,9 @@ public class BankAccount {
 	@PrePersist
 	protected void onCreate() {
 		createdAt = LocalDateTime.now();
-		if (status == null) status = AccountStatus.ACTIVE;
+		if (status == null) {
+			status = AccountStatus.ACTIVE;
+		}
 	}
 
 	public BankAccount() {

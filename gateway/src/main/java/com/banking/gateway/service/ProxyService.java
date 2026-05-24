@@ -18,12 +18,13 @@ public class ProxyService {
 
 	private static final Logger log = LoggerFactory.getLogger(ProxyService.class);
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final LoadBalancerService loadBalancer;
 	private final MetricsService metricsService;
 
-	public ProxyService(LoadBalancerService loadBalancer, MetricsService metricsService) {
+	public ProxyService(RestTemplate restTemplate, LoadBalancerService loadBalancer, MetricsService metricsService) {
+		this.restTemplate = restTemplate;
 		this.loadBalancer = loadBalancer;
 		this.metricsService = metricsService;
 	}
@@ -41,8 +42,9 @@ public class ProxyService {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			Collections.list(request.getHeaderNames()).forEach(name -> {
-				if (!name.equalsIgnoreCase("host") && !name.equalsIgnoreCase("content-length"))
+				if (!name.equalsIgnoreCase("host") && !name.equalsIgnoreCase("content-length")) {
 					headers.add(name, request.getHeader(name));
+				}
 			});
 			headers.set("X-Gateway-Strategy", loadBalancer.getStrategy());
 			headers.set("X-Routed-To", instance.getId());

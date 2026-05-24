@@ -67,8 +67,9 @@ public class AccountController {
 		simulator.simulate();
 		return accounts.findById(id).map(acc -> {
 			BigDecimal amount = body.get("amount");
-			if (acc.getBalance().compareTo(amount) < 0)
+			if (acc.getBalance().compareTo(amount) < 0) {
 				return ResponseEntity.badRequest().body(Map.of("error", "Insufficient funds"));
+			}
 			acc.setBalance(acc.getBalance().subtract(amount));
 			return ResponseEntity.ok((Object) accounts.save(acc));
 		}).orElse(ResponseEntity.notFound().build());

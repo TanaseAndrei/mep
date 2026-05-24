@@ -45,7 +45,9 @@ public class MetricsService {
 
 	private double percentile(int pct) {
 		List<Long> sorted = new ArrayList<>(latencies);
-		if (sorted.isEmpty()) return 0;
+		if (sorted.isEmpty()) {
+			return 0;
+		}
 		Collections.sort(sorted);
 		int idx = (int) Math.ceil(pct / 100.0 * sorted.size()) - 1;
 		return sorted.get(Math.max(0, idx));

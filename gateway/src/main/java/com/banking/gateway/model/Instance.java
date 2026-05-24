@@ -27,7 +27,9 @@ public class Instance {
 		long prevEnd = lastRequestEnd.getAndSet(now);
 		if (activeConnections.get() == 0) {
 			long idle = now - prevEnd;
-			if (idle > 0) idleTimeMs.addAndGet(idle);
+			if (idle > 0) {
+				idleTimeMs.addAndGet(idle);
+			}
 		}
 		activeConnections.incrementAndGet();
 		totalRequests.incrementAndGet();
