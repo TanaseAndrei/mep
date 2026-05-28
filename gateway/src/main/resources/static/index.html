@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Balancer Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #f8fafc;
+        }
+
+        h1 span {
+            color: #60a5fa;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+        .strategy-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .strategy-btns button {
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 12px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #1e293b;
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .strategy-btns button:hover { background: #334155; }
+        .strategy-btns button.active {
+            background: #1d4ed8;
+            border-color: #3b82f6;
+            color: #fff;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        select:focus, input:focus { border-color: #3b82f6; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-start { background: #16a34a; color: #fff; }
+        .btn-start:hover { background: #15803d; }
+        .btn-start:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        .btn-stop { background: #dc2626; color: #fff; }
+        .btn-stop:hover { background: #b91c1c; }
+        .btn-stop:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+        .btn-reset { background: #475569; color: #fff; }
+        .btn-reset:hover { background: #64748b; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .status-badge.running { background: #052e16; color: #4ade80; }
+        .status-badge.stopped { background: #1c1917; color: #a8a29e; }
+
+        .status-badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .metric {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .metric .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .metric .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .metric .value.blue { color: #60a5fa; }
+        .metric .value.green { color: #4ade80; }
+        .metric .value.yellow { color: #facc15; }
+        .metric .value.red { color: #f87171; }
+
+        .instances-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .instances-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 1px solid #334155;
+        }
+
+        .instances-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .util-bar {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .util-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+            background: #3b82f6;
+        }
+
+        .gen-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+
+        .gen-stats span { color: #94a3b8; }
+        .gen-stats strong { color: #e2e8f0; }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 12px;
+        }
+
+        .auto-refresh input[type="checkbox"] { accent-color: #3b82f6; }
+    </style>
+</head>
+<body>
+
+<h1><span>Load Balancer</span> Dashboard</h1>
+
+<div class="grid">
+    <div class="sidebar">
+        <div class="card">
+            <h2>Strategie</h2>
+            <div class="strategy-btns" id="strategyBtns">
+                <button data-strategy="round-robin">Round Robin</button>
+                <button data-strategy="least-connections">Least Conn</button>
+                <button data-strategy="weighted">Weighted</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Generator</h2>
+            <div id="genStatus"></div>
+            <div>
+                <label for="scenario">Scenariu</label>
+                <select id="scenario">
+                    <option value="uniform">Uniform</option>
+                    <option value="burst">Burst Traffic</option>
+                    <option value="gradual">Gradual</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label for="rps">RPS</label>
+                    <input type="number" id="rps" value="100" min="1" max="5000">
+                </div>
+                <div>
+                    <label for="duration">Durata (s)</label>
+                    <input type="number" id="duration" value="30" min="5" max="300">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-start" id="btnStart" onclick="startGenerator()">Start</button>
+                <button class="btn btn-stop" id="btnStop" onclick="stopGenerator()" disabled>Stop</button>
+            </div>
+            <div class="gen-stats" id="genStats"></div>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-reset" style="width:100%" onclick="resetMetrics()">Resetare metrici</button>
+            <div class="auto-refresh">
+                <input type="checkbox" id="autoRefresh" checked>
+                <label for="autoRefresh" style="margin:0">Auto-refresh (1s)</label>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="card">
+            <h2>Metrici Gateway</h2>
+            <div class="metrics-grid" id="gatewayMetrics"></div>
+        </div>
+
+        <div class="card">
+            <h2>Instante de procesare</h2>
+            <table class="instances-table">
+                <thead>
+                    <tr>
+                        <th>Instanta</th>
+                        <th>Cereri</th>
+                        <th>Active</th>
+                        <th>Erori</th>
+                        <th>Latenta medie</th>
+                        <th>Idle</th>
+                        <th>Utilizare</th>
+                    </tr>
+                </thead>
+                <tbody id="instancesBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let refreshInterval = null;
+
+    async function api(url, method = 'GET') {
+        try {
+            const res = await fetch(url, { method });
+            return await res.json();
+        } catch (e) {
+            console.error('API error:', e);
+            return null;
+        }
+    }
+
+    async function refreshMetrics() {
+        const data = await api('/gateway/metrics');
+        if (!data) return;
+
+        document.querySelectorAll('#strategyBtns button').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.strategy === data.strategy);
+        });
+
+        const gw = data.gateway;
+        document.getElementById('gatewayMetrics').innerHTML = `
+            <div class="metric"><div class="label">Total cereri</div><div class="value blue">${gw.totalRequests}</div></div>
+            <div class="metric"><div class="label">Throughput</div><div class="value green">${gw.throughputRps} rps</div></div>
+            <div class="metric"><div class="label">Latenta medie</div><div class="value">${gw.meanLatencyMs} ms</div></div>
+            <div class="metric"><div class="label">P95</div><div class="value yellow">${gw.p95LatencyMs} ms</div></div>
+            <div class="metric"><div class="label">P99</div><div class="value red">${gw.p99LatencyMs} ms</div></div>
+            <div class="metric"><div class="label">Erori</div><div class="value ${gw.totalErrors > 0 ? 'red' : ''}">${gw.totalErrors}</div></div>
+        `;
+
+        const tbody = document.getElementById('instancesBody');
+        tbody.innerHTML = data.instances.map(inst => `
+            <tr>
+                <td><strong>${inst.id}</strong></td>
+                <td>${inst.totalRequests}</td>
+                <td>${inst.activeConnections}</td>
+                <td style="color:${inst.totalErrors > 0 ? '#f87171' : 'inherit'}">${inst.totalErrors}</td>
+                <td>${inst.avgLatencyMs} ms</td>
+                <td>${(inst.idleTimeMs / 1000).toFixed(1)}s</td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div class="util-bar"><div class="util-bar-fill" style="width:${inst.utilizationPct}%"></div></div>
+                        <span style="font-size:0.8rem;min-width:40px">${inst.utilizationPct}%</span>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function refreshGenerator() {
+        const data = await api('/generator/status');
+        if (!data) {
+            document.getElementById('genStatus').innerHTML =
+                '<span class="status-badge stopped">Generator offline</span>';
+            return;
+        }
+
+        const running = data.running;
+        document.getElementById('genStatus').innerHTML =
+            `<span class="status-badge ${running ? 'running' : 'stopped'}">${running ? 'Running' : 'Stopped'}</span>`;
+
+        document.getElementById('btnStart').disabled = running;
+        document.getElementById('btnStop').disabled = !running;
+
+        document.getElementById('genStats').innerHTML = running || data.sent > 0
+            ? `<span>Trimise: <strong>${data.sent}</strong></span>
+               <span>Erori: <strong>${data.errors}</strong></span>
+               <span>Scenariu: <strong>${data.scenario}</strong></span>`
+            : '';
+    }
+
+    async function startGenerator() {
+        const scenario = document.getElementById('scenario').value;
+        const rps = document.getElementById('rps').value;
+        const duration = document.getElementById('duration').value;
+        await api(`/generator/start?scenario=${scenario}&rps=${rps}&duration=${duration}`, 'POST');
+        refreshGenerator();
+    }
+
+    async function stopGenerator() {
+        await api('/generator/stop', 'POST');
+        refreshGenerator();
+    }
+
+    async function resetMetrics() {
+        await api('/gateway/metrics/reset', 'POST');
+        refreshMetrics();
+    }
+
+    document.querySelectorAll('#strategyBtns button').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            await api(`/gateway/strategy?name=${btn.dataset.strategy}`, 'POST');
+            refreshMetrics();
+        });
+    });
+
+    function refreshAll() {
+        refreshMetrics();
+        refreshGenerator();
+    }
+
+    document.getElementById('autoRefresh').addEventListener('change', (e) => {
+        if (e.target.checked) {
+            refreshInterval = setInterval(refreshAll, 1000);
+        } else {
+            clearInterval(refreshInterval);
+        }
+    });
+
+    refreshAll();
+    refreshInterval = setInterval(refreshAll, 1000);
+</script>
+
+</body>
+</html>
