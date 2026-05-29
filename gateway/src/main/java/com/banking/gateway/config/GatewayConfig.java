@@ -1,6 +1,8 @@
 package com.banking.gateway.config;
 
 import com.banking.gateway.model.Instance;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -25,54 +27,18 @@ public class GatewayConfig {
 				.toList();
 	}
 
+	@Getter
+	@Setter
 	public static class GatewayProperties {
 		private String strategy;
 		private List<InstanceProperties> instances;
-
-		public String getStrategy() {
-			return strategy;
-		}
-
-		public void setStrategy(String s) {
-			this.strategy = s;
-		}
-
-		public List<InstanceProperties> getInstances() {
-			return instances;
-		}
-
-		public void setInstances(List<InstanceProperties> i) {
-			this.instances = i;
-		}
 	}
 
+	@Getter
+	@Setter
 	public static class InstanceProperties {
 		private String id;
 		private String url;
 		private int weight;
-
-		public String getId() {
-			return id;
-		}
-
-		public void setId(String id) {
-			this.id = id;
-		}
-
-		public String getUrl() {
-			return url;
-		}
-
-		public void setUrl(String url) {
-			this.url = url;
-		}
-
-		public int getWeight() {
-			return weight;
-		}
-
-		public void setWeight(int w) {
-			this.weight = w;
-		}
 	}
 }

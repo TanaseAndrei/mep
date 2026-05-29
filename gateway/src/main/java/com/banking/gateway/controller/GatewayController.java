@@ -5,6 +5,7 @@ import com.banking.gateway.service.LoadBalancerService;
 import com.banking.gateway.service.MetricsService;
 import com.banking.gateway.service.ProxyService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,19 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class GatewayController {
 
 	private final ProxyService proxyService;
 	private final LoadBalancerService loadBalancer;
 	private final MetricsService metricsService;
-
-	public GatewayController(ProxyService proxyService,
-							 LoadBalancerService loadBalancer,
-							 MetricsService metricsService) {
-		this.proxyService = proxyService;
-		this.loadBalancer = loadBalancer;
-		this.metricsService = metricsService;
-	}
 
 	@RequestMapping("/api/**")
 	public ResponseEntity<String> proxy(HttpServletRequest request,

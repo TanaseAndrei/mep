@@ -3,6 +3,7 @@ package com.banking.instance.controller;
 import com.banking.instance.model.Transaction;
 import com.banking.instance.repository.TransactionRepository;
 import com.banking.instance.service.LatencySimulator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/transactions")
+@RequiredArgsConstructor
 public class TransactionController {
 
 	private final TransactionRepository transactions;
 	private final LatencySimulator simulator;
-
-	public TransactionController(TransactionRepository transactions, LatencySimulator simulator) {
-		this.transactions = transactions;
-		this.simulator = simulator;
-	}
 
 	@PostMapping
 	public ResponseEntity<Transaction> create(@RequestBody Transaction txn) {

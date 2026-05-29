@@ -1,12 +1,18 @@
 package com.banking.instance.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "accounts")
+@Getter
+@Setter
+@NoArgsConstructor
 public class BankAccount {
 
 	@Id
@@ -42,61 +48,10 @@ public class BankAccount {
 		}
 	}
 
-	public BankAccount() {
-	}
-
 	public BankAccount(String iban, String ownerName, BigDecimal balance, AccountType type) {
 		this.iban = iban;
 		this.ownerName = ownerName;
 		this.balance = balance;
 		this.type = type;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getIban() {
-		return iban;
-	}
-
-	public void setIban(String iban) {
-		this.iban = iban;
-	}
-
-	public String getOwnerName() {
-		return ownerName;
-	}
-
-	public void setOwnerName(String n) {
-		this.ownerName = n;
-	}
-
-	public BigDecimal getBalance() {
-		return balance;
-	}
-
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
-	}
-
-	public AccountType getType() {
-		return type;
-	}
-
-	public void setType(AccountType type) {
-		this.type = type;
-	}
-
-	public AccountStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(AccountStatus status) {
-		this.status = status;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
 	}
 }

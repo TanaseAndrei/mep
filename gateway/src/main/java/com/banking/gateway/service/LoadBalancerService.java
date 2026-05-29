@@ -2,8 +2,7 @@ package com.banking.gateway.service;
 
 import com.banking.gateway.config.GatewayConfig.GatewayProperties;
 import com.banking.gateway.model.Instance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,10 +10,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Service
 public class LoadBalancerService {
-
-	private static final Logger log = LoggerFactory.getLogger(LoadBalancerService.class);
 
 	private final List<Instance> instances;
 	private final GatewayProperties props;

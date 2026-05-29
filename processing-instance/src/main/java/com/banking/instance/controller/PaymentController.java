@@ -3,6 +3,7 @@ package com.banking.instance.controller;
 import com.banking.instance.model.Payment;
 import com.banking.instance.repository.PaymentRepository;
 import com.banking.instance.service.LatencySimulator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +14,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/payments")
+@RequiredArgsConstructor
 public class PaymentController {
 
 	private final PaymentRepository payments;
 	private final LatencySimulator simulator;
-
-	public PaymentController(PaymentRepository payments, LatencySimulator simulator) {
-		this.payments = payments;
-		this.simulator = simulator;
-	}
 
 	@PostMapping
 	public ResponseEntity<Payment> create(@RequestBody Payment payment) {

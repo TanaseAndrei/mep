@@ -1,6 +1,7 @@
 package com.banking.generator.controller;
 
 import com.banking.generator.service.GeneratorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,13 +9,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/generator")
+@RequiredArgsConstructor
 public class GeneratorController {
 
 	private final GeneratorService generatorService;
-
-	public GeneratorController(GeneratorService generatorService) {
-		this.generatorService = generatorService;
-	}
 
 	@PostMapping("/start")
 	public ResponseEntity<Map<String, Object>> start(

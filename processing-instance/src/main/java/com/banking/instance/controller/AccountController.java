@@ -3,6 +3,7 @@ package com.banking.instance.controller;
 import com.banking.instance.model.BankAccount;
 import com.banking.instance.repository.AccountRepository;
 import com.banking.instance.service.LatencySimulator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +14,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/accounts")
+@RequiredArgsConstructor
 public class AccountController {
 
 	private final AccountRepository accounts;
 	private final LatencySimulator simulator;
-
-	public AccountController(AccountRepository accounts, LatencySimulator simulator) {
-		this.accounts = accounts;
-		this.simulator = simulator;
-	}
 
 	@PostMapping
 	public ResponseEntity<BankAccount> create(@RequestBody BankAccount account) {

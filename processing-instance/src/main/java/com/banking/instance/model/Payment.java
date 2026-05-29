@@ -1,12 +1,18 @@
 package com.banking.instance.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payments")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Payment {
 
 	@Id
@@ -43,9 +49,6 @@ public class Payment {
 		}
 	}
 
-	public Payment() {
-	}
-
 	public Payment(String debtorIban, String creditorIban, BigDecimal amount,
 				   PaymentMethod method, String remittanceInfo) {
 		this.debtorIban = debtorIban;
@@ -53,57 +56,5 @@ public class Payment {
 		this.amount = amount;
 		this.method = method;
 		this.remittanceInfo = remittanceInfo;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getDebtorIban() {
-		return debtorIban;
-	}
-
-	public void setDebtorIban(String s) {
-		this.debtorIban = s;
-	}
-
-	public String getCreditorIban() {
-		return creditorIban;
-	}
-
-	public void setCreditorIban(String s) {
-		this.creditorIban = s;
-	}
-
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal a) {
-		this.amount = a;
-	}
-
-	public PaymentMethod getMethod() {
-		return method;
-	}
-
-	public void setMethod(PaymentMethod m) {
-		this.method = m;
-	}
-
-	public PaymentStatus getStatus() {
-		return status;
-	}
-
-	public void setStatus(PaymentStatus s) {
-		this.status = s;
-	}
-
-	public String getRemittanceInfo() {
-		return remittanceInfo;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
 	}
 }

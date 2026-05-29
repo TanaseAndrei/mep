@@ -2,8 +2,8 @@ package com.banking.generator.service;
 
 import com.banking.generator.model.BankingRequestFactory;
 import com.banking.generator.model.BankingRequestFactory.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class GeneratorService {
 
-	private static final Logger log = LoggerFactory.getLogger(GeneratorService.class);
 	private static final long TICK_MS = 50;
 
 	@Value("${generator.gateway-url}")
@@ -26,10 +27,6 @@ public class GeneratorService {
 	private final RestTemplate restTemplate;
 	private final AtomicLong sent = new AtomicLong(0);
 	private final AtomicLong errors = new AtomicLong(0);
-
-	public GeneratorService(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
-	}
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private volatile String scenario = "uniform";

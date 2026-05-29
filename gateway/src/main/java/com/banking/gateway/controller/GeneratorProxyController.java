@@ -1,5 +1,6 @@
 package com.banking.gateway.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -7,16 +8,13 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/generator")
+@RequiredArgsConstructor
 public class GeneratorProxyController {
 
 	@Value("${gateway.generator-url:http://banking-generator:8090}")
 	private String generatorUrl;
 
 	private final RestTemplate restTemplate;
-
-	public GeneratorProxyController(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
-	}
 
 	@PostMapping("/start")
 	public ResponseEntity<String> start(@RequestParam(defaultValue = "uniform") String scenario,

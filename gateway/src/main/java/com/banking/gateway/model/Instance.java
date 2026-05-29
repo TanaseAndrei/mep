@@ -1,12 +1,19 @@
 package com.banking.gateway.model;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+@RequiredArgsConstructor
 public class Instance {
 
+	@Getter
 	private final String id;
+	@Getter
 	private final String url;
+	@Getter
 	private final int weight;
 
 	private final AtomicInteger activeConnections = new AtomicInteger(0);
@@ -15,12 +22,6 @@ public class Instance {
 	private final AtomicLong totalErrors = new AtomicLong(0);
 	private final AtomicLong idleTimeMs = new AtomicLong(0);
 	private final AtomicLong lastRequestEnd = new AtomicLong(System.currentTimeMillis());
-
-	public Instance(String id, String url, int weight) {
-		this.id = id;
-		this.url = url;
-		this.weight = weight;
-	}
 
 	public void recordStart() {
 		long now = System.currentTimeMillis();
@@ -48,18 +49,6 @@ public class Instance {
 	public double getAvgLatencyMs() {
 		long r = totalRequests.get();
 		return r == 0 ? 0.0 : (double) totalLatencyMs.get() / r;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public int getWeight() {
-		return weight;
 	}
 
 	public int getActiveConnections() {

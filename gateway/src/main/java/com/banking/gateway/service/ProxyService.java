@@ -1,33 +1,26 @@
 package com.banking.gateway.service;
 
 import com.banking.gateway.model.Instance;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.Collections;
 import java.util.Map;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProxyService {
-
-	private static final Logger log = LoggerFactory.getLogger(ProxyService.class);
 
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final LoadBalancerService loadBalancer;
 	private final MetricsService metricsService;
-
-	public ProxyService(RestTemplate restTemplate, LoadBalancerService loadBalancer, MetricsService metricsService) {
-		this.restTemplate = restTemplate;
-		this.loadBalancer = loadBalancer;
-		this.metricsService = metricsService;
-	}
 
 	public ResponseEntity<String> proxy(HttpServletRequest request, String body) {
 		Instance instance = loadBalancer.select();
