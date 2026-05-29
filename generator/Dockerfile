@@ -5,8 +5,6 @@ COPY gateway/pom.xml gateway/
 COPY processing-instance/pom.xml processing-instance/
 COPY generator/pom.xml generator/
 RUN mvn dependency:go-offline -pl generator -am -q
-COPY gateway/src gateway/src
-COPY processing-instance/src processing-instance/src
 COPY generator/src generator/src
 RUN mvn package -pl generator -am -DskipTests -q
 

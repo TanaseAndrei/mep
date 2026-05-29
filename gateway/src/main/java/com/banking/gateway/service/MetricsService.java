@@ -12,10 +12,10 @@ public class MetricsService {
 	private static final int MAX_SAMPLES = 50_000;
 
 	private ConcurrentLinkedQueue<Long> latencies = new ConcurrentLinkedQueue<>();
-	private final AtomicLong sampleCount   = new AtomicLong(0);
+	private final AtomicLong sampleCount = new AtomicLong(0);
 	private final AtomicLong totalRequests = new AtomicLong(0);
-	private final AtomicLong totalErrors   = new AtomicLong(0);
-	private volatile long    startTime     = System.currentTimeMillis();
+	private final AtomicLong totalErrors = new AtomicLong(0);
+	private volatile long startTime = System.currentTimeMillis();
 
 	public void monitor(long latencyMs) {
 		totalRequests.incrementAndGet();

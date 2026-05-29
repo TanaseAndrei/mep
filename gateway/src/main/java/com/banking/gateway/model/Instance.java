@@ -63,10 +63,6 @@ public class Instance {
 		return totalErrors.get();
 	}
 
-	public long getTotalLatencyMs() {
-		return totalLatencyMs.get();
-	}
-
 	public long getIdleTimeMs() {
 		return idleTimeMs.get();
 	}

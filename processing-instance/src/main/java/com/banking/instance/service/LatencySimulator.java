@@ -1,5 +1,6 @@
 package com.banking.instance.service;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,11 @@ public class LatencySimulator {
 
 	private static final Random random = new Random();
 
+	@Getter
 	@Value("${instance.id}")
 	private String instanceId;
 
+	@Getter
 	@Value("${instance.base-processing-ms}")
 	private int baseProcessingMs;
 
@@ -33,14 +36,6 @@ public class LatencySimulator {
 		}
 		processedCount.incrementAndGet();
 		log.debug("[{}] processed request in ~{}ms", instanceId, sleepMs);
-	}
-
-	public String getInstanceId() {
-		return instanceId;
-	}
-
-	public int getBaseProcessingMs() {
-		return baseProcessingMs;
 	}
 
 	public long getProcessedCount() {

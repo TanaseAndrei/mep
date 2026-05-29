@@ -7,8 +7,6 @@ COPY generator/pom.xml generator/
 RUN mvn dependency:go-offline -pl gateway -am -q
 
 COPY gateway/src gateway/src
-COPY processing-instance/src processing-instance/src
-COPY generator/src generator/src
 RUN mvn package -pl gateway -am -DskipTests -q
 
 FROM eclipse-temurin:17-jre-alpine
