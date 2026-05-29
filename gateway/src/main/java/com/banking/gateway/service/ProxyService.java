@@ -28,7 +28,6 @@ public class ProxyService {
 		String targetUrl = instance.getUrl() + request.getRequestURI()
 				+ (query != null ? "?" + query : "");
 
-		instance.recordStart();
 		long start = System.currentTimeMillis();
 
 		try {
@@ -61,6 +60,7 @@ public class ProxyService {
 			long latency = System.currentTimeMillis() - start;
 			instance.recordEnd(latency);
 			instance.recordError();
+			metricsService.monitor(latency);
 			metricsService.recordError();
 			log.warn("Proxy error → {}: {}", instance.getId(), e.getMessage());
 			try {

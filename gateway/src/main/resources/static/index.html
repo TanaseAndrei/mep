@@ -404,8 +404,11 @@
     }
 
     async function resetMetrics() {
-        await api('/gateway/metrics/reset', 'POST');
-        refreshMetrics();
+        await Promise.all([
+            api('/gateway/metrics/reset', 'POST'),
+            api('/generator/reset', 'POST')
+        ]);
+        refreshAll();
     }
 
     document.querySelectorAll('#strategyBtns button').forEach(btn => {

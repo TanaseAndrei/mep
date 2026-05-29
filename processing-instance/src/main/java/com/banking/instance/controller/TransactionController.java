@@ -4,6 +4,7 @@ import com.banking.instance.model.Transaction;
 import com.banking.instance.repository.TransactionRepository;
 import com.banking.instance.service.LatencySimulator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +17,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TransactionController {
 
+	private static final int PAGE_SIZE = 100;
+
 	private final TransactionRepository transactions;
 	private final LatencySimulator simulator;
 
 	@PostMapping
 	public ResponseEntity<Transaction> create(@RequestBody Transaction txn) {
 		simulator.simulate();
-		txn.setStatus(Transaction.TransactionStatus.PENDING);
-		Transaction saved = transactions.save(txn);
-		saved.setStatus(Transaction.TransactionStatus.COMPLETED);
-		return ResponseEntity.status(HttpStatus.CREATED).body(transactions.save(saved));
+		txn.setStatus(Transaction.TransactionStatus.COMPLETED);
+		return ResponseEntity.status(HttpStatus.CREATED).body(transactions.save(txn));
 	}
 
 	@GetMapping
 	public ResponseEntity<List<Transaction>> getAll() {
 		simulator.simulate();
-		return ResponseEntity.ok(transactions.findAll());
+		return ResponseEntity.ok(transactions.findAll(PageRequest.of(0, PAGE_SIZE)).getContent());
 	}
 
 	@GetMapping("/{id}")

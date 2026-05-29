@@ -27,11 +27,15 @@ public class LoadBalancerService {
 	}
 
 	public Instance select() {
-		return switch (props.getStrategy()) {
-			case "least-connections" -> leastConnections();
+		if ("least-connections".equals(props.getStrategy())) {
+			return selectLeastConnections();
+		}
+		Instance selected = switch (props.getStrategy()) {
 			case "weighted" -> weighted();
 			default -> roundRobin();
 		};
+		selected.recordStart();
+		return selected;
 	}
 
 	private Instance roundRobin() {
@@ -39,10 +43,12 @@ public class LoadBalancerService {
 		return instances.get(idx);
 	}
 
-	private Instance leastConnections() {
-		return instances.stream()
+	private synchronized Instance selectLeastConnections() {
+		Instance selected = instances.stream()
 				.min(Comparator.comparingInt(Instance::getActiveConnections))
 				.orElse(instances.get(0));
+		selected.recordStart();
+		return selected;
 	}
 
 	private Instance weighted() {

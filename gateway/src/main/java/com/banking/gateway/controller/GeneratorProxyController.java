@@ -29,6 +29,11 @@ public class GeneratorProxyController {
 		return restTemplate.postForEntity(generatorUrl + "/generator/stop", null, String.class);
 	}
 
+	@PostMapping("/reset")
+	public ResponseEntity<String> reset() {
+		return restTemplate.postForEntity(generatorUrl + "/generator/reset", null, String.class);
+	}
+
 	@GetMapping("/status")
 	public ResponseEntity<String> status() {
 		return restTemplate.getForEntity(generatorUrl + "/generator/status", String.class);

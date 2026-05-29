@@ -39,6 +39,14 @@ public class GeneratorController {
 		));
 	}
 
+	@PostMapping("/reset")
+	public ResponseEntity<Map<String, Object>> reset() {
+		if (!generatorService.reset()) {
+			return ResponseEntity.badRequest().body(Map.of("error", "Cannot reset while running"));
+		}
+		return ResponseEntity.ok(Map.of("status", "reset"));
+	}
+
 	@GetMapping("/status")
 	public ResponseEntity<Map<String, Object>> status() {
 		return ResponseEntity.ok(Map.of(

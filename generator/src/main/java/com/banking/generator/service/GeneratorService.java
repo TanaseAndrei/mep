@@ -38,6 +38,9 @@ public class GeneratorService {
 		if (!running.compareAndSet(false, true)) {
 			return;
 		}
+
+		shutdownPools();
+
 		this.scenario = scenarioName;
 		sent.set(0);
 		errors.set(0);
@@ -58,14 +61,32 @@ public class GeneratorService {
 	}
 
 	public void stop() {
-		running.set(false);
-		if (scheduler != null) {
-			scheduler.shutdown();
-		}
-		if (httpPool != null) {
-			httpPool.shutdown();
+		if (!running.compareAndSet(true, false)) {
+			return;
 		}
 		log.info("Generator STOP — sent={} errors={}", sent.get(), errors.get());
+		shutdownPools();
+	}
+
+	private void shutdownPools() {
+		if (scheduler != null) {
+			scheduler.shutdownNow();
+			try {
+				scheduler.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			scheduler = null;
+		}
+		if (httpPool != null) {
+			httpPool.shutdownNow();
+			try {
+				httpPool.awaitTermination(5, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			httpPool = null;
+		}
 	}
 
 	private void scheduleBatched(int rps, Supplier<Request> requestFactory) {
@@ -168,5 +189,15 @@ public class GeneratorService {
 
 	public String getScenario() {
 		return scenario;
+	}
+
+	public boolean reset() {
+		if (running.get()) {
+			return false;
+		}
+		sent.set(0);
+		errors.set(0);
+		scenario = "uniform";
+		return true;
 	}
 }

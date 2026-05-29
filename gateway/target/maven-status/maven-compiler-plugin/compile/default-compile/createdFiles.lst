@@ -1,9 +1,9 @@
 com/banking/gateway/config/GatewayConfig.class
-com/banking/gateway/GatewayApplication.class
 com/banking/gateway/config/GatewayConfig$InstanceProperties.class
-com/banking/gateway/service/MetricsService.class
-com/banking/gateway/model/Instance.class
 com/banking/gateway/service/ProxyService.class
 com/banking/gateway/config/GatewayConfig$GatewayProperties.class
-com/banking/gateway/controller/GatewayController.class
 com/banking/gateway/service/LoadBalancerService.class
+com/banking/gateway/GatewayApplication.class
+com/banking/gateway/service/MetricsService.class
+com/banking/gateway/model/Instance.class
+com/banking/gateway/controller/GatewayController.class

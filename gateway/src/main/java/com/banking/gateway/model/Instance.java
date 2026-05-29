@@ -68,6 +68,7 @@ public class Instance {
 	}
 
 	public void reset() {
+		activeConnections.set(0);
 		totalRequests.set(0);
 		totalLatencyMs.set(0);
 		totalErrors.set(0);

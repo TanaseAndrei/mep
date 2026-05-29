@@ -4,6 +4,7 @@ import com.banking.instance.model.Payment;
 import com.banking.instance.repository.PaymentRepository;
 import com.banking.instance.service.LatencySimulator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,8 @@ import java.util.Map;
 @RequestMapping("/payments")
 @RequiredArgsConstructor
 public class PaymentController {
+
+	private static final int PAGE_SIZE = 100;
 
 	private final PaymentRepository payments;
 	private final LatencySimulator simulator;
@@ -35,7 +38,7 @@ public class PaymentController {
 	@GetMapping
 	public ResponseEntity<List<Payment>> getAll() {
 		simulator.simulate();
-		return ResponseEntity.ok(payments.findAll());
+		return ResponseEntity.ok(payments.findAll(PageRequest.of(0, PAGE_SIZE)).getContent());
 	}
 
 	@GetMapping("/{id}")

@@ -15,10 +15,16 @@ public class MetricsService {
 	private final AtomicLong sampleCount = new AtomicLong(0);
 	private final AtomicLong totalRequests = new AtomicLong(0);
 	private final AtomicLong totalErrors = new AtomicLong(0);
-	private volatile long startTime = System.currentTimeMillis();
+	private volatile long startTime = 0;
+	private final AtomicLong lastRequestTime = new AtomicLong(0);
 
 	public void monitor(long latencyMs) {
+		long now = System.currentTimeMillis();
+		if (startTime == 0) {
+			startTime = now;
+		}
 		totalRequests.incrementAndGet();
+		lastRequestTime.set(now);
 		latencies.offer(latencyMs);
 		if (sampleCount.incrementAndGet() > MAX_SAMPLES) {
 			latencies.poll();
@@ -54,8 +60,9 @@ public class MetricsService {
 	}
 
 	public double getThroughput() {
-		long elapsed = System.currentTimeMillis() - startTime;
-		return elapsed == 0 ? 0 : totalRequests.get() * 1000.0 / elapsed;
+		long end = lastRequestTime.get();
+		long elapsed = end - startTime;
+		return elapsed <= 0 ? 0 : totalRequests.get() * 1000.0 / elapsed;
 	}
 
 	public Map<String, Object> getSummary() {
@@ -82,6 +89,7 @@ public class MetricsService {
 		sampleCount.set(0);
 		totalRequests.set(0);
 		totalErrors.set(0);
-		startTime = System.currentTimeMillis();
+		startTime = 0;
+		lastRequestTime.set(0);
 	}
 }

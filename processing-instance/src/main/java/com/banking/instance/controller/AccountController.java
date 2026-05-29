@@ -4,6 +4,8 @@ import com.banking.instance.model.BankAccount;
 import com.banking.instance.repository.AccountRepository;
 import com.banking.instance.service.LatencySimulator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,19 +19,26 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AccountController {
 
+	private static final int PAGE_SIZE = 100;
+
 	private final AccountRepository accounts;
 	private final LatencySimulator simulator;
 
 	@PostMapping
-	public ResponseEntity<BankAccount> create(@RequestBody BankAccount account) {
+	public ResponseEntity<?> create(@RequestBody BankAccount account) {
 		simulator.simulate();
-		return ResponseEntity.status(HttpStatus.CREATED).body(accounts.save(account));
+		try {
+			return ResponseEntity.status(HttpStatus.CREATED).body(accounts.save(account));
+		} catch (DataIntegrityViolationException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body(Map.of("error", "Account with this IBAN already exists"));
+		}
 	}
 
 	@GetMapping
 	public ResponseEntity<List<BankAccount>> getAll() {
 		simulator.simulate();
-		return ResponseEntity.ok(accounts.findAll());
+		return ResponseEntity.ok(accounts.findAll(PageRequest.of(0, PAGE_SIZE)).getContent());
 	}
 
 	@GetMapping("/{id}")
