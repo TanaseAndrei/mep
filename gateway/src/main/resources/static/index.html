@@ -306,7 +306,6 @@
                         <th>Instanta</th>
                         <th>Cereri</th>
                         <th>Active</th>
-                        <th>Erori</th>
                         <th>Latenta medie</th>
                         <th>Idle</th>
                         <th>Utilizare</th>
@@ -346,7 +345,6 @@
             <div class="metric"><div class="label">Latenta medie</div><div class="value">${gw.meanLatencyMs} ms</div></div>
             <div class="metric"><div class="label">P95</div><div class="value yellow">${gw.p95LatencyMs} ms</div></div>
             <div class="metric"><div class="label">P99</div><div class="value red">${gw.p99LatencyMs} ms</div></div>
-            <div class="metric"><div class="label">Erori</div><div class="value ${gw.totalErrors > 0 ? 'red' : ''}">${gw.totalErrors}</div></div>
         `;
 
         const tbody = document.getElementById('instancesBody');
@@ -355,7 +353,6 @@
                 <td><strong>${inst.id}</strong></td>
                 <td>${inst.totalRequests}</td>
                 <td>${inst.activeConnections}</td>
-                <td style="color:${inst.totalErrors > 0 ? '#f87171' : 'inherit'}">${inst.totalErrors}</td>
                 <td>${inst.avgLatencyMs} ms</td>
                 <td>${(inst.idleTimeMs / 1000).toFixed(1)}s</td>
                 <td>
@@ -385,7 +382,6 @@
 
         document.getElementById('genStats').innerHTML = running || data.sent > 0
             ? `<span>Trimise: <strong>${data.sent}</strong></span>
-               <span>Erori: <strong>${data.errors}</strong></span>
                <span>Scenariu: <strong>${data.scenario}</strong></span>`
             : '';
     }

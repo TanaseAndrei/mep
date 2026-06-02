@@ -26,7 +26,6 @@ public class GeneratorService {
 
 	private final RestTemplate restTemplate;
 	private final AtomicLong sent = new AtomicLong(0);
-	private final AtomicLong errors = new AtomicLong(0);
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private volatile String scenario = "uniform";
@@ -43,7 +42,6 @@ public class GeneratorService {
 
 		this.scenario = scenarioName;
 		sent.set(0);
-		errors.set(0);
 
 		scheduler = Executors.newScheduledThreadPool(4);
 		int poolSize = Math.max(50, (int)(rps * 0.5) + 50);
@@ -64,7 +62,7 @@ public class GeneratorService {
 		if (!running.compareAndSet(true, false)) {
 			return;
 		}
-		log.info("Generator STOP — sent={} errors={}", sent.get(), errors.get());
+		log.info("Generator STOP — sent={}", sent.get());
 		shutdownPools();
 	}
 
@@ -167,10 +165,10 @@ public class GeneratorService {
 			);
 			long count = sent.incrementAndGet();
 			if (count % 200 == 0) {
-				log.info("Sent {} (errors: {})", count, errors.get());
+				log.info("Sent {}", count);
 			}
 		} catch (Exception e) {
-			errors.incrementAndGet();
+			sent.incrementAndGet();
 			log.debug("Failed [{}]: {}", req.path(), e.getMessage());
 		}
 	}
@@ -183,10 +181,6 @@ public class GeneratorService {
 		return sent.get();
 	}
 
-	public long getErrors() {
-		return errors.get();
-	}
-
 	public String getScenario() {
 		return scenario;
 	}
@@ -196,7 +190,6 @@ public class GeneratorService {
 			return false;
 		}
 		sent.set(0);
-		errors.set(0);
 		scenario = "uniform";
 		return true;
 	}

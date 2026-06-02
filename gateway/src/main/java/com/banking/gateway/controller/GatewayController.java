@@ -38,7 +38,6 @@ public class GatewayController {
 					m.put("id", inst.getId());
 					m.put("activeConnections", inst.getActiveConnections());
 					m.put("totalRequests", inst.getTotalRequests());
-					m.put("totalErrors", inst.getTotalErrors());
 					m.put("avgLatencyMs", String.format("%.2f", inst.getAvgLatencyMs()));
 					m.put("idleTimeMs", inst.getIdleTimeMs());
 					double util = totalReqs == 0 ? 0 : (double) inst.getTotalRequests() / totalReqs * 100;

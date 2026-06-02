@@ -33,8 +33,9 @@ public class BankingRequestFactory {
 	}
 
 	public static Request createAccount() {
+		String iban = "RO49TEST" + String.format("%016d", Math.abs(random.nextLong()) % 9_999_999_999_999_999L);
 		return new Request("POST", "/api/accounts", Map.of(
-				"iban", "RO49TEST" + String.format("%016d", Math.abs(random.nextLong()) % 9_999_999_999_999_999L),
+				"iban", iban,
 				"ownerName", NAMES.get(random.nextInt(NAMES.size())),
 				"balance", randomAmount(100, 50000),
 				"type", randomFrom("CURRENT", "SAVINGS", "BUSINESS")

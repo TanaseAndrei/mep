@@ -34,8 +34,7 @@ public class GeneratorController {
 		generatorService.stop();
 		return ResponseEntity.ok(Map.of(
 				"status", "stopped",
-				"sent", generatorService.getSent(),
-				"errors", generatorService.getErrors()
+				"sent", generatorService.getSent()
 		));
 	}
 
@@ -52,8 +51,7 @@ public class GeneratorController {
 		return ResponseEntity.ok(Map.of(
 				"running", generatorService.isRunning(),
 				"scenario", generatorService.getScenario(),
-				"sent", generatorService.getSent(),
-				"errors", generatorService.getErrors()
+				"sent", generatorService.getSent()
 		));
 	}
 }

@@ -14,7 +14,6 @@ public class MetricsService {
 	private ConcurrentLinkedQueue<Long> latencies = new ConcurrentLinkedQueue<>();
 	private final AtomicLong sampleCount = new AtomicLong(0);
 	private final AtomicLong totalRequests = new AtomicLong(0);
-	private final AtomicLong totalErrors = new AtomicLong(0);
 	private volatile long startTime = 0;
 	private final AtomicLong lastRequestTime = new AtomicLong(0);
 
@@ -30,10 +29,6 @@ public class MetricsService {
 			latencies.poll();
 			sampleCount.decrementAndGet();
 		}
-	}
-
-	public void recordError() {
-		totalErrors.incrementAndGet();
 	}
 
 	public double getMean() {
@@ -68,7 +63,6 @@ public class MetricsService {
 	public Map<String, Object> getSummary() {
 		Map<String, Object> m = new LinkedHashMap<>();
 		m.put("totalRequests", totalRequests.get());
-		m.put("totalErrors", totalErrors.get());
 		m.put("throughputRps", String.format("%.2f", getThroughput()));
 		m.put("meanLatencyMs", String.format("%.2f", getMean()));
 		m.put("p95LatencyMs", String.format("%.2f", getP95()));
@@ -80,15 +74,10 @@ public class MetricsService {
 		return totalRequests.get();
 	}
 
-	public long getTotalErrors() {
-		return totalErrors.get();
-	}
-
 	public void reset() {
 		latencies = new ConcurrentLinkedQueue<>();
 		sampleCount.set(0);
 		totalRequests.set(0);
-		totalErrors.set(0);
 		startTime = 0;
 		lastRequestTime.set(0);
 	}

@@ -59,9 +59,7 @@ public class ProxyService {
 		} catch (Exception e) {
 			long latency = System.currentTimeMillis() - start;
 			instance.recordEnd(latency);
-			instance.recordError();
 			metricsService.monitor(latency);
-			metricsService.recordError();
 			log.warn("Proxy error → {}: {}", instance.getId(), e.getMessage());
 			try {
 				String errorBody = objectMapper.writeValueAsString(
